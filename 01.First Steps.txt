@@ -1,0 +1,76 @@
+#Hosts file
+
+controller	10.0.0.3
+compute		10.0.0.4
+network		10.0.0.5
+storage		10.0.0.6
+--------------------------------
+
+#apt-get update -y && apt-get upgrade -y && apt-get dist-upgrade
+
+#apt-get install -y ntp
+
+#In controller:
+Edit the /etc/ntp.conf
+
+restrict -4 default kod notrap nomodify
+restrict -6 default kod notrap nomodify
+
+#In all nodes:
+
+#Edit the /etc/ntp.conf
+
+server controller iburst
+
+#check :
+
+ntpq -c peers
+ntpq -c assoc
+
+=============================
+
+#Repository setup for Juno :  in all nodes
+
+#apt-get install python-software-properties
+#add-apt-repository cloud-archive:juno
+
+
+#apt-get update -y && apt-get dist-upgrade -y
+
+reboot
+=================================
+
+#In controller:
+
+#apt-get install -y mysql-server python-mysqldb
+
+#vi /etc/mysql/my.cnf
+bind-address = 10.0.0.3
+
+#Under the [mysqld] section
+[mysqld]
+default-storage-engine = innodb
+innodb_file_per_table
+collation-server = utf8_general_ci
+init-connect = 'SET NAMES utf8'
+character-set-server = utf8
+
+#service mysql restart
+#mysql_install_db
+#mysql_secure_installation
+
+---------------
+
+#In all nodes: 
+
+#apt-get install python-mysqldb
+
+----------------------------------------------
+
+#In controller:
+
+Install RabbitMQ (Message Queue):
+
+#apt-get install -y rabbitmq-server
+
+#rabbitmqctl change_password guest password@123
