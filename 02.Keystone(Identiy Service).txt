@@ -1,0 +1,75 @@
+In Controller --- install Keystone
+
+#apt-get install keystone python-keystoneclient
+
+#mysql -u root -p
+CREATE DATABASE keystone;
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'localhost' IDENTIFIED BY 'password@123';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'controller' IDENTIFIED BY 'password@123';
+GRANT ALL PRIVILEGES ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'password@123';
+
+#Edit the /etc/keystone/keystone.conf
+
+[DEFAULT]
+admin_token = 123456789
+verbose = True
+log_dir = /var/log/keystone
+
+[database]
+connection = mysql://keystone:password@123@controller/keystone
+------------------
+
+#su -s /bin/sh -c "keystone-manage db_sync" keystone
+#rm -f /var/lib/keystone/keystone.db
+#service keystone restart
+----------------
+#export OS_SERVICE_TOKEN=123456789
+#export OS_SERVICE_ENDPOINT=http://controller:35357/v2.0
+#keystone tenant-create --name admin --description "Admin Tenant"
+#keystone user-create --name admin --pass password@123 --email username@domain.com
+#keystone role-create --name admin
+#keystone user-role-add --tenant admin --user admin --role admin
+#keystone role-create --name _member_
+#keystone user-role-add --tenant admin --user admin --role _member_
+#keystone tenant-create --name demo --description "Demo Tenant"
+#keystone user-create --name demo --pass password@456 --email username@domain.com
+#keystone user-role-add --tenant demo --user demo --role _member_
+#keystone tenant-create --name service --description "Service Tenant"
+#keystone service-create --name keystone --type identity --description "OpenStack Identity"
+
+#keystone endpoint-create --service-id $(keystone service-list | awk '/ identity / {print $2}') --publicurl http://controller:5000/v2.0 --internalurl http://controller:5000/v2.0 --adminurl http://controller:35357/v2.0 --region regionOne
+-----------------
+In Controller -- keystone Verify
+
+#unset OS_SERVICE_TOKEN OS_SERVICE_ENDPOINT
+
+#keystone --os-tenant-name admin --os-username admin --os-password password@123 --os-auth-url http://controller:35357/v2.0 token-get
+#keystone --os-tenant-name admin --os-username admin --os-password password@123 --os-auth-url http://controller:35357/v2.0 tenant-list
+#keystone --os-tenant-name admin --os-username admin --os-password password@123 --os-auth-url http://controller:35357/v2.0 user-list
+#keystone --os-tenant-name admin --os-username admin --os-password password@123 --os-auth-url http://controller:35357/v2.0 role-list
+
+
+#keystone --os-tenant-name admin --os-username demo --os-password password@123 --os-auth-url http://controller:35357/v2.0 token-get
+#keystone --os-tenant-name admin --os-username demo --os-password password@123 --os-auth-url http://controller:35357/v2.0 user-list
+
+---Openstack client environment script
+
+#vi openrc.sh
+
+export OS_USERNAME=admin
+export OS_PASSWORD=znet@123
+export OS_TENANT_NAME=admin
+export OS_AUTH_URL=http://controller:35357/v2.0
+
+---Test keystone-------
+ source openrc.sh
+
+#keystone user-list
+#keystone user-role-list --user admin --tenant admin
+
+#vi demo-openrc.sh
+
+export OS_USERNAME=demo
+export OS_PASSWORD=password@456
+export OS_TENANT_NAME=demo
+export OS_AUTH_URL=http://controller:35357/v2.0
