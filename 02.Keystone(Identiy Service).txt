@@ -32,7 +32,7 @@ connection = mysql://keystone:password@123@controller/keystone
 #keystone role-create --name _member_
 #keystone user-role-add --tenant admin --user admin --role _member_
 #keystone tenant-create --name demo --description "Demo Tenant"
-#keystone user-create --name demo --pass password@456 --email username@domain.com
+#keystone user-create --name demo --pass password@123 --email username@domain.com
 #keystone user-role-add --tenant demo --user demo --role _member_
 #keystone tenant-create --name service --description "Service Tenant"
 #keystone service-create --name keystone --type identity --description "OpenStack Identity"
