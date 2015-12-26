@@ -1,0 +1,29 @@
+Install the dashboard Service (Horizon) in Controller
+
+#apt-get install -y apache2 memcached libapache2-mod-wsgi openstack-dashboard
+
+#apt-get remove -y --purge openstack-dashboard-ubuntu-theme
+
+#vi /etc/openstack-dashboard/local_settings.py
+
+ALLOWED_HOSTS = ['localhost', '10.0.0.3']
+OPENSTACK_HOST = "controller"
+
+-----------------------------------
+
+#service apache2 restart; service memcached restart
+
+Note:
+If you have this error: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1.
+Set the 'ServerName' directive  globally to suppress this message”
+
+Solution: Edit /etc/apache2/apache2.conf
+
+#vi /etc/apache2/apache2.conf
+#Add the following new line end of file:
+#ServerName localhost
+
+
+Reload Apache and memcached:
+
+#service apache2 restart; service memcached restart
