@@ -1,0 +1,110 @@
+In controller node : 
+
+#mysql -u root -p
+
+CREATE DATABASE cinder;
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'localhost' IDENTIFIED BY 'password@123';
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'controller' IDENTIFIED BY 'password@123';
+GRANT ALL PRIVILEGES ON cinder.* TO 'cinder'@'%' IDENTIFIED BY 'password@123';
+
+
+#keystone user-create --name cinder --pass password@123  --email=username@domain.com
+#keystone user-role-add --user cinder --tenant service --role admin  
+#keystone service-create --name cinder --type volume --description "OpenStack Block Storage"
+#keystone service-create --name cinderv2 --type volumev2 --description "OpenStack Block Storage"
+
+#keystone endpoint-create --service-id $(keystone service-list | awk '/ volume / {print $2}') --publicurl http://controller:8776/v1/%\(tenant_id\)s --internalurl http://controller:8776/v1/%\(tenant_id\)s --adminurl http://controller:8776/v1/%\(tenant_id\)s --region regionOne
+
+#keystone endpoint-create --service-id $(keystone service-list | awk '/ volumev2 / {print $2}') --publicurl http://controller:8776/v2/%\(tenant_id\)s --internalurl http://controller:8776/v2/%\(tenant_id\)s --adminurl http://controller:8776/v2/%\(tenant_id\)s --region regionOne
+
+
+Install the packages:
+
+#apt-get install cinder-api cinder-scheduler python-cinderclient
+
+#vi /etc/cinder/cinder.conf
+
+[DEFAULT]
+rpc_backend = rabbit
+rabbit_host = controller
+rabbit_password = password@123
+
+auth_strategy = keystone
+
+my_ip = 10.0.0.3
+
+[database]
+
+connection = mysql://cinder:password@123@controller/cinder
+
+[keystone_authtoken]
+auth_uri = http://controller:5000/v2.0
+identity_uri = http://controller:35357
+admin_tenant_name = service
+admin_user = cinder
+admin_password = password@123
+
+---------------------------
+
+Populate the Block Storage database:
+
+#rm -f /var/lib/cinder/cinder.sqlite
+#su -s /bin/sh -c "cinder-manage db sync" cinder
+
+Restart the Block Storage services:
+
+#service cinder-api restart
+#service cinder-scheduler restart
+
+=========================================================
+
+Cinder ----------- storage node
+
+
+#apt-get install lvm2
+
+Create the LVM physical volume
+
+#pvcreate /dev/sdb
+
+Create the LVM volume group cinder-volumes
+
+#vgcreate cinder-volumes /dev/sdb
+
+#apt-get install cinder-volume python-mysqldb
+
+#vi /etc/cinder/cinder.conf
+
+[DEFAULT]
+rpc_backend = rabbit
+rabbit_host = controller
+rabbit_password = password@123
+
+auth_strategy = keystone
+
+my_ip = 10.0.0.6
+
+glance_host = controller
+
+[database]
+connection = mysql://cinder:password@123@controller/cinder
+
+[keystone_authtoken]
+auth_uri = http://controller:5000/v2.0
+identity_uri = http://controller:35357
+admin_tenant_name = service
+admin_user = cinder
+admin_password = password@123
+-----------------------
+
+Restart the Block Storage volume service
+
+#rm -f /var/lib/cinder/cinder.sqlite
+#service tgt restart
+#service cinder-volume restart
+
+Verify:
+
+#cinder service-list
+#cinder create --display-name demo-volume1 1
+#cinder list
