@@ -18,3 +18,6 @@ Open-Stack does not require a significant amount of resources and the following 
 • Compute Node: 1 processor, 2 GB memory, and 10 GB storage
 
 To minimize clutter and provide more resources for OpenStack, a minimal installation of your Linux distribution is recommended.
+
+Do not try my guide in production. I am not making any promises. 
+I suggest you test it first. A contribution is expected ifi you find anomalies and errors. Thank you. 
