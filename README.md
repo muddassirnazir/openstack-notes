@@ -11,9 +11,9 @@ https://github.com/openstack
 #Installation Guide : 
 Open-Stack does not require a significant amount of resources and the following minimum requirements should support a proof-of-concept environment with core services and several instances:
 
-• Controller Node: 1 processor, 2 GB memory, and 5 GB storage
+• Controller Node: 1 processor, 2 GB memory, and 8 GB storage
 
-• Network Node: 1 processor, 512 MB memory, and 5 GB storage
+• Network Node: 1 processor, 512 MB memory, and 8 GB storage
 
 • Compute Node: 1 processor, 2 GB memory, and 10 GB storage
 
